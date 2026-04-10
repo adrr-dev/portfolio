@@ -1,0 +1,85 @@
+/* 1. Base Variables */
+:root {
+  --bg-color: #1a1a1a;
+  --text-color: #d1d1d1;
+  --accent-color: #c94f4f;
+  --code-bg: #2d2d2d;
+  --font-mono: "Source Code Pro", monospace;
+}
+
+/* 2. Global Styles */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: var(--font-mono);
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+}
+
+/* 3. Layout: Centering the content */
+main,
+header,
+footer {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* 4. Header & Navigation */
+header {
+  border-bottom: 1px solid var(--code-bg);
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  gap: 20px;
+}
+
+nav a {
+  color: var(--accent-color);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+/* 5. Typography */
+h1,
+h2,
+h3 {
+  color: #ffffff;
+}
+
+/* 6. The Project Grid: Modular & Flexible */
+#project-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.project-card {
+  background-color: var(--code-bg);
+  padding: 20px;
+  border-radius: 4px;
+  border-left: 4px solid var(--accent-color);
+}
+
+/* 7. Footer */
+footer {
+  font-size: 0.9em;
+  text-align: center;
+  border-top: 1px solid var(--code-bg);
+  margin-top: 50px;
+}
+
+/* 8. Utility: Keep things simple on mobile */
+@media (min-width: 600px) {
+  #project-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
