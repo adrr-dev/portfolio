@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/static/styles.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="https://unpkg.com/htmx.org@latest"></script>
     <title>Developer Portfolio</title>
   </head>
   <body>
@@ -11,45 +12,64 @@
       <nav>
         <ul>
           <li>
-            <a href="#home">Home</a>
+            <a href="#" hx-target="#content" hx-get="/home">Home</a>
           </li>
           <li>
-            <a href="#projects">Projects</a>
+            <a href="#" hx-target="#content" hx-get="/projects">Projects</a>
           </li>
           <li>
-            <a href="#about">About</a>
+            <a href="#" hx-target="#content" hx-get="/about">About</a>
           </li>
           <li>
-            <a href="#contact">Contact</a>
+            <a href="#" hx-target="#content" hx-get="/contact">Contact</a>
+          </li>
+          <li>
+            <a href="#" hx-target="#content" hx-get="/skills">Skills</a>
           </li>
         </ul>
       </nav>
     </header>
+
     <main id="content">
       <section id="home">
-        <h1>Web Development enthusiast</h1>
-        <p>building simple webapps in golang</p>
-      </section>
-      <section id="projects">
-        <h2>Big Time Projects</h2>
-        <div id="project-list">
-          <article class="project-card">
-            ### Project Title
-            <p>Some simple project</p>
-            <a href="https://github.com/adrr-dev">View Source</a>
-          </article>
-        </div>
-      </section>
-      <section id="about">
-        <h2>Technical Approach</h2>
-        <p>I focus on clean logic, official documentation over abstractions, and terminal-optimized workflows.</p>
+        <header class="hero">
+          <div id="personal-pic"></div>
+          <h1>Art Darrell Ridel Rumagit</h1>
+          <h2>Backend Software Engineer</h2>
+          <p>
+            Building efficient, logic-driven systems with
+            <strong>Go</strong> and <strong>Linux</strong>.
+          </p>
+        </header>
+        <hr />
+        <article class="bio-intro">
+          <h3>The Philosophy</h3>
+          <p>
+            I advocate for the "docs-first" approach and lean heavily on the Go
+            standard library. I prefer building tools that are fast,
+            terminal-friendly, and dependency-light.
+          </p>
+        </article>
+        <article class="status-board">
+          <h3>Current Focus</h3>
+          <ul>
+            <li>Developing CLI utilities with <code>os/exec</code></li>
+            <li>Architecting htmx-powered web interfaces</li>
+            <li>Configuring Arch Linux environments</li>
+          </ul>
+        </article>
       </section>
     </main>
+
     <footer>
-      <section id="contact">
-        <p>&copy; 2026 | Built with Go + HTMX</p>
-        <div>
-          <a href="https://github.com/adrr-dev">GitHub</a> |
+      <hr />
+      <section id="footer-info">
+        <p>
+          © 2026 Art D. R. Rumagit • Built with <strong>Go</strong> &
+          <strong>HTMX</strong>
+        </p>
+        <div class="footer-links">
+          <a href="https://github.com/adrr-dev" target="_blank">GitHub</a>
         </div>
       </section>
     </footer>

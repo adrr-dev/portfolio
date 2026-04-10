@@ -1,0 +1,15 @@
+<section id="skills">
+  <h2>Technical Toolkit</h2>
+  <div class="skills-container">
+    {{ range . }}
+    <article class="skill-card">
+      <header class="skill-tag">
+        <h3>{{.Name}}</h3>
+      </header>
+      <div class="skill-body">
+        <p>{{.Level}}</p>
+      </div>
+    </article>
+    {{ end }}
+  </div>
+</section>

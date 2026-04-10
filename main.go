@@ -24,7 +24,13 @@ func main() {
 
 	fileServer := http.FileServer(http.Dir("./static"))
 	mux.Handle("GET /static/", http.StripPrefix("/static/", fileServer))
-	mux.HandleFunc("GET /{$}", myHandling.RootHandle)
+
+	mux.HandleFunc("GET /{$}", myHandling.RootHandler)
+	mux.HandleFunc("GET /home", myHandling.HomeHandler)
+	mux.HandleFunc("GET /about", myHandling.AboutHandler)
+	mux.HandleFunc("GET /projects", myHandling.ProjectsHandler)
+	mux.HandleFunc("GET /contact", myHandling.ContactHandler)
+	mux.HandleFunc("GET /skills", myHandling.SkillsHandler)
 
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
