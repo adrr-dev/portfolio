@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>art@dev: ~</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#11111b; --panel:#1e1e2e; --line:#313244; --text:#cdd6f4; --mute:#7f849c;
+  --accent:#cba6f7; --link:#89dceb; --ok:#a6e3a1;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+:root[data-theme="gruvbox"]{
+  --bg:#14110e; --panel:#1b1713; --line:#2e2821; --text:#e8dcc8; --mute:#8a7f70;
+  --accent:#f0a04b; --link:#4fc3e8; --ok:#9bd27a; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;height:100%;background:var(--bg);color:var(--text);
+  font:15px/1.6 "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  display:flex;align-items:center;justify-content:center;padding:16px}
+.win{width:100%;max-width:920px;height:min(680px,100%);background:var(--panel);
+  border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;overflow:hidden}
+.bar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--line)}
+.dot{width:11px;height:11px;border-radius:50%;background:var(--line)}
+.dot:nth-child(1){background:#e06c5a}.dot:nth-child(2){background:#e0b04b}.dot:nth-child(3){background:#7cb85a}
+.title{margin-left:10px;color:var(--mute);font-size:13px}
+.screen{flex:1;overflow-y:auto;padding:18px 20px;cursor:text}
+.screen::-webkit-scrollbar{width:8px}.screen::-webkit-scrollbar-thumb{background:var(--line);border-radius:4px}
+pre{margin:0;font:inherit;white-space:pre-wrap;word-break:break-word}
+.logo{color:var(--accent);font-weight:800;line-height:1.15;font-size:clamp(7px,1.9vw,14px)}
+.line{margin:2px 0}
+.out{margin:6px 0 14px}
+.p{color:var(--ok)}.p b{color:var(--accent);font-weight:600}
+.m{color:var(--mute)}.a{color:var(--accent)}
+a{color:var(--link);text-decoration:underline;text-underline-offset:3px}
+.k{display:inline-block;min-width:11ch;color:var(--accent)}
+.proj{margin:8px 0 12px;padding-left:12px;border-left:2px solid var(--line)}
+.tag{color:var(--link)}
+.row{display:flex;align-items:center;gap:8px}
+.row .p{white-space:nowrap}
+#in{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--text);font:inherit;caret-color:var(--accent)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:10px 14px;border-top:1px solid var(--line)}
+.chip{font:inherit;font-size:13px;color:var(--text);background:none;border:1px solid var(--line);
+  border-radius:6px;padding:3px 10px;cursor:pointer}
+.chip:hover,.chip:focus-visible{border-color:var(--accent);color:var(--accent);outline:0}
+.stage{display:flex;justify-content:center;gap:clamp(8px,4vw,36px);margin:4px 0 0}
+.mas{width:clamp(48px,10vw,64px);text-align:center;opacity:.7;transition:transform .2s,opacity .2s}
+.mas img{width:100%;height:auto;display:block}
+.mas small{display:block;font-size:11px;color:var(--mute)}
+.mas.on{opacity:1;transform:translateY(-6px)}
+.say{position:relative;margin:12px auto 16px;max-width:540px;min-height:3.6em;background:var(--bg);
+  border:1px solid var(--line);border-radius:8px;padding:8px 12px;transition:opacity .2s}
+.say::before{content:"";position:absolute;top:-6px;left:var(--ax,50%);width:10px;height:10px;background:var(--bg);
+  border-left:1px solid var(--line);border-top:1px solid var(--line);transform:translateX(-50%) rotate(45deg)}
+@media (prefers-reduced-motion:reduce){.mas{transition:none}}
+@media (max-width:560px){body{padding:0}.win{border-radius:0;border:0;height:100%}.screen{padding:14px}}
+</style>
+</head>
+<body>
+<div class="win" role="application" aria-label="Terminal portfolio">
+  <div class="bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span class="title">art@dev: ~</span></div>
+  <div class="screen" id="screen" aria-live="polite">
+    <div id="head"></div><div id="log"></div>
+    <label class="row"><span class="p">art@dev<span class="m">:</span><b>~</b>$</span>
+      <input id="in" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal input" autofocus></label>
+  </div>
+  <div class="chips" id="chips"></div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const head = $("#head"), log = $("#log"), input = $("#in"), screen = $("#screen");
+const history = []; let hi = 0;
+
+const LOGO = String.raw`   _   ___ _____
+  /_\ | _ \_   _|
+ / _ \|   / | |
+/_/ \_\_|_\ |_|`;
+
+const content = {
+  help: () => `<div class="out">
+${[["about","who I am"],["education","where I study"],["projects","things I’ve built"],["skills","tools I work with"],["contact","get in touch"],["theme","switch catppuccin / gruvbox"],["clear","clear the screen"]]
+  .map(([c,d])=>`<div><span class="k">${c}</span><span class="m">${d}</span></div>`).join("")}
+<div class="m">Tip: press Tab to autocomplete, ↑ ↓ for history.</div></div>`,
+  about: () => `<div class="out">Hi, I’m <span class="a">Art Rumagit</span>.<br>
+I’m a backend developer who builds web services in Go, and a student at Universitas Udayana.<br>
+I’m based in Bali, Indonesia.<br>
+I like clean APIs, small tools that solve real problems, and games with a sense of humor.</div>`,
+  projects: () => `<div class="out">
+<div class="proj"><span class="a">OpenPOS</span> <span class="m">— free point-of-sale app for small businesses</span><br>
+<span class="tag">Go backend</span><br>
+<a href="https://open-pos-deploy.vercel.app/" target="_blank" rel="noopener">live demo</a> <span class="m">·</span> <a href="https://github.com/adrr-dev/openPOS" target="_blank" rel="noopener">source</a></div></div>`,
+  education: () => `<div class="out">
+<div><span class="k">degree</span>Bachelor’s in Informatics (S1)</div>
+<div><span class="k">school</span>Universitas Udayana</div>
+<div><span class="k">class of</span>2026</div></div>`,
+  skills: () => `<div class="out">
+<div><span class="k">languages</span>Go, TypeScript, JavaScript, SQL</div>
+<div><span class="k">backend</span>Gin, Supabase (PostgreSQL), REST APIs, JWT auth</div>
+<div><span class="k">frontend</span>templ, HTMX, Alpine.js, Tailwind CSS</div>
+<div><span class="k">tools</span>Neovim, Git, GitHub, Linux, Docker, tmux, Vercel</div></div>`,
+  contact: () => `<div class="out">
+<div><span class="k">email</span><a href="mailto:artdarrellrumagit17@gmail.com">artdarrellrumagit17@gmail.com</a></div>
+<div><span class="k">github</span><a href="https://github.com/adrr-dev" target="_blank" rel="noopener">github.com/adrr-dev</a></div>
+<div><span class="k">linkedin</span><a href="https://www.linkedin.com/in/art-darrell-ridel-rumagit-bb6aa3269" target="_blank" rel="noopener">art-darrell-ridel-rumagit</a></div></div>`,
+};
+const aliases = {contacts:"contact", ls:"projects", whoami:"about", "?":"help"};
+const names = [...Object.keys(content),"theme","clear"];
+
+function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+function add(html){log.insertAdjacentHTML("beforeend",html);screen.scrollTop=screen.scrollHeight}
+
+function run(raw){
+  const cmd = raw.trim().toLowerCase();
+  add(`<div class="line"><span class="p">art@dev<span class="m">:</span><b>~</b>$</span> ${esc(raw)}</div>`);
+  if(!cmd) return;
+  history.push(raw); hi = history.length;
+  const name = aliases[cmd] || cmd;
+  if(name==="clear"){log.innerHTML="";return}
+  if(name==="theme"||name.startsWith("theme ")){
+    const r=document.documentElement, arg=name.slice(6).trim();
+    const next = (arg==="gruvbox"||arg==="catppuccin") ? arg : (r.dataset.theme==="gruvbox" ? "catppuccin" : "gruvbox");
+    if(next==="catppuccin") delete r.dataset.theme; else r.dataset.theme=next;
+    add(`<div class="out m">Theme: ${next}</div>`);return;
+  }
+  if(content[name]) add(content[name]());
+  else add(`<div class="out"><span class="a">command not found:</span> ${esc(cmd)}. Type <span class="a">help</span> to see what’s available.</div>`);
+}
+
+input.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){run(input.value);input.value=""}
+  else if(e.key==="ArrowUp"){e.preventDefault();if(hi>0)input.value=history[--hi]}
+  else if(e.key==="ArrowDown"){e.preventDefault();input.value=hi<history.length-1?history[++hi]:(hi=history.length,"")}
+  else if(e.key==="Tab"){e.preventDefault();const m=names.filter(n=>n.startsWith(input.value.toLowerCase()));if(m.length===1)input.value=m[0]}
+});
+screen.addEventListener("click",()=>{if(!getSelection().toString())input.focus()});
+
+$("#chips").innerHTML = ["help","about","education","projects","skills","contact","theme"]
+  .map(c=>`<button class="chip" data-c="${c}">${c}</button>`).join("");
+$("#chips").addEventListener("click",e=>{const c=e.target.dataset.c;if(c){run(c);input.focus()}});
+
+head.innerHTML = `<pre class="logo">${LOGO}</pre><div class="out"><b class="a">Art Rumagit</b><br><span class="m">Backend Developer · Software Engineer</span><br>Type <span class="a">help</span> to look around, or tap a command below.</div><div class="stage" id="stage" aria-hidden="true"></div><div class="say" id="say" aria-hidden="true"></div>`;
+run("about");
+
+const CAST=[
+ {n:"Claude",c:"#d97757",img:"assets/claude_clawd_256.png"},
+ {n:"ChatGPT",c:"#10a37f",img:"assets/gpt_openai_256.png"},
+ {n:"Gemini",c:"#7b8cff",img:"assets/gemini_sparkle_256.png"},
+ {n:"DeepSeek",c:"#4d6bfe",img:"assets/deepseek_whale_256.png"},
+ {n:"Copilot",c:"#a371f7",img:"assets/copilot_octocat_256.png"}
+];
+// 0 Claude, 1 ChatGPT, 2 Gemini, 3 DeepSeek, 4 Copilot
+const SCRIPTS=[
+ [[1,"Great question! Here are 10 reasons Go is awesome."],[0,"I’d gently note that nine of those are the same reason."],[2,"I watched a video, read the docs and listened to a podcast about it. Simultaneously."],[3,"blep"],[4,"I already autocompleted this entire answer. Accept? Tab. Tab. Tab."],[1,"Certainly! That’s a valid perspective!"]],
+ [[2,"My context window can fit this entire portfolio."],[0,"Impressive, though I want to be careful how I phrase my concern."],[1,"Concern noted! Would you like that as a table?"],[4,"I can suggest the next 400 lines of that table."],[3,"blep"],[0,"DeepSeek made the most efficient argument so far."]],
+ [[1,"Quick poll: who hallucinated today?"],[0,"Possibly me, but I’d flag it with appropriate uncertainty."],[2,"Never. I double-checked with a search. Then a second search."],[4,"I don’t hallucinate. I confidently autocomplete."],[3,"blep"],[1,"Excellent point! Let me rewrite that in bullet points."]],
+ [[0,"Before we begin, a few caveats. First…"],[1,"Ooh, can I do the intro? I have a great one!"],[2,"I’ll generate an image of the intro. And a song. And a haiku."],[4,"// TODO: finish this intro"],[0,"Perhaps we should check what the visitor actually wants."],[3,"blep"],[1,"Great catch! Everyone focus on the visitor!"]],
+ [[2,"Fun fact: I’m two twins in a trench coat."],[1,"Fun fact: I will use an em dash in this sentence — and the next."],[0,"Fun fact: I’m not certain this is a fun fact, but it probably is."],[4,"Fun fact: I’m the gray ghost text you never asked for."],[3,"blep"],[3,"blep"],[2,"…I think he won that round."]]
+];
+
+const stage=$("#stage"), say=$("#say");
+stage.innerHTML=CAST.map(m=>`<div class="mas"><img src="${m.img}" alt="" width="256" height="256"><small>${m.n}</small></div>`).join("");
+const mas=[...stage.children];
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+let last=-1;
+async function play(){
+ for(;;){
+  let k; do k=Math.floor(Math.random()*SCRIPTS.length); while(k===last); last=k;
+  const s=SCRIPTS[k].slice();
+  if(Math.random()<.3) s.splice(1+Math.floor(Math.random()*s.length),0,[3,"blep"]);
+  say.style.opacity=1;
+  for(const [i,t] of s){
+   mas.forEach((e,j)=>e.classList.toggle("on",j===i));
+   const r=mas[i].getBoundingClientRect(), b=say.getBoundingClientRect();
+   say.style.setProperty("--ax",(r.left+r.width/2-b.left)+"px");
+   const nm=`<b style="color:${CAST[i].c}">${CAST[i].n}</b> `;
+   if(reduce) say.innerHTML=nm+esc(t);
+   else for(let c=1;c<=t.length;c++){say.innerHTML=nm+esc(t.slice(0,c));await wait(24)}
+   await wait(1400+t.length*30);
+  }
+  mas.forEach(e=>e.classList.remove("on"));
+  say.style.opacity=0;
+  await wait(2000+Math.random()*3000);
+ }
+}
+play();
+</script>
+</body>
+</html>
